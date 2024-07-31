@@ -1,16 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { registerUserWithDetails } from '../../firebase/auth';
 import './Registration.css';
 import logo from '../../assets/logo.png';
-
 
 const Registration = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleRegistration = () => {
-    navigate('/home');
+  const handleRegistration = async (e) => {
+    e.preventDefault();
+    try {
+      await registerUserWithDetails(email, password, name);
+      navigate('/home');
+    } catch (error) {
+      console.error("Error registering user", error);
+      alert(error.message);
+    }
   };
 
   return (
@@ -29,6 +37,13 @@ const Registration = () => {
           placeholder="Email" 
           value={email} 
           onChange={(e) => setEmail(e.target.value)} 
+          className="registration-input"
+        />
+        <input 
+          type="password" 
+          placeholder="Password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
           className="registration-input"
         />
         <button onClick={handleRegistration} className="registration-button">Register</button>
