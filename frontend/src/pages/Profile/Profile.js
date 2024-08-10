@@ -3,33 +3,29 @@ import Select from 'react-select';
 import { Chart, ArcElement, Tooltip } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import MealCard from '../MealCard';
-import profileImg from '../../assets/profile.png';
+import profile from '../../assets/profile-user.png';
 import saladImg from '../../assets/salad.jpg';
-import dollarIcon from '../../assets/coin-outline.png';
-import ingredientsIcon from '../../assets/tomato-outline.png';
-import receiptsIcon from '../../assets/receipt-outline.png';
-import kitchensIcon from '../../assets/refrigerator-outline.png';
-import favoriteIcon from '../../assets/star-outline.png';
-
-import './Profile.css';
+import ingredientsIcon from '../../assets/tomato.png';
+import receiptsIcon from '../../assets/receipt.png';
+import favoriteIcon from '../../assets/star-filled.png';
 
 Chart.register(ArcElement, Tooltip);
 
 const Profile = () => {
-    const dietaryOptions = [
-        { value: 'vegetarian', label: 'Vegetarian', color: '#4caf50' },
-        { value: 'vegan', label: 'Vegan', color: '#ff9800' },
-        { value: 'gluten-free', label: 'Gluten-Free', color: '#2196f3' },
-        { value: 'nut-allergies', label: 'Nut Allergies', color: '#f44336' },
-    ];
+  const dietaryOptions = [
+    { value: 'vegetarian', label: 'Vegetarian', color: '#4caf50' },
+    { value: 'vegan', label: 'Vegan', color: '#ff9800' },
+    { value: 'gluten-free', label: 'Gluten-Free', color: '#2196f3' },
+    { value: 'nut-allergies', label: 'Nut Allergies', color: '#f44336' },
+  ];
 
-    const cuisineOptions = [
-        { value: 'italian', label: 'Italian', color: '#e91e63' },
-        { value: 'indian', label: 'Indian', color: '#9c27b0' },
-        { value: 'chinese', label: 'Chinese', color: '#3f51b5' },
-        { value: 'thai', label: 'Thai', color: '#00bcd4' },
-        { value: 'french', label: 'French', color: '#8bc34a' },
-    ];
+  const cuisineOptions = [
+    { value: 'italian', label: 'Italian', color: '#e91e63' },
+    { value: 'indian', label: 'Indian', color: '#9c27b0' },
+    { value: 'chinese', label: 'Chinese', color: '#3f51b5' },
+    { value: 'thai', label: 'Thai', color: '#00bcd4' },
+    { value: 'french', label: 'French', color: '#8bc34a' },
+  ];
 
   const customStyles = {
     option: (provided, state) => ({
@@ -73,12 +69,12 @@ const Profile = () => {
   const meals = [salad, salad, salad, salad, salad]; // Add more meals as needed
 
   const donutData = {
-    labels: ['Generated', 'Not Generated'],
+    labels: ['Accepted', 'Rejected'],
     datasets: [
       {
         data: [60, 40], // Example data
-        backgroundColor: ['#aaf0aa', '#ffaaaa'],
-        hoverBackgroundColor: ['green', 'red'],
+        backgroundColor: ['#15803d', '#921A40'],
+        hoverBackgroundColor: ['#16a34a', '#C75B7A'],
       },
     ],
   };
@@ -100,60 +96,54 @@ const Profile = () => {
   };
 
   return (
-    <div className="profile-screen">
-      <div className="profile-top-section">
-        <div className="profile-card">
-          <img src={profileImg} alt="Profile" className="profile-image" />
-          <div className="profile-info">
-            <h2 className="profile-name">John Doe</h2>
-            <p className="profile-email">john.doe@example.com</p>
+    <div className="bg-custom-white">
+      <div className="flex flex-col items-center w-4/5 h-4/5 mx-auto bg-custom-red p-5 shadow-lg rounded-lg">
+        <div className="flex justify-between w-full mb-3 space-x-5">
+          <div className="bg-white rounded-lg p-5 w-1/4 shadow-md flex flex-col items-center">
+            <img src={profile} alt="Profile" className="w-36 h-36 rounded-full mb-3 border border-black" />
+            <div className="text-center">
+              <h2 className="text-black text-2xl">John Doe</h2>
+              <p className="text-gray-500 text-sm">john.doe@example.com</p>
+            </div>
           </div>
-        </div>
-        <div className="profile-card">
-          <Doughnut data={donutData} options={donutOptions}/>
-          <div className="meals-generated">
-            <p><strong>5</strong></p>
-            <span>Meals Generated</span>
+          <div className="bg-white rounded-lg p-5 w-1/4 shadow-md flex flex-col items-center">
+            <Doughnut data={donutData} options={donutOptions} />
+            <div className="text-center mt-2">
+              <p className="text-custom-red-300 text-2xl font-bold">5</p>
+              <span className="text-gray-500">Meals Generated</span>
+            </div>
           </div>
-        </div>
-        <div className="profile-card">
-          <div className="profile-selects">
-            <h4>Preferences</h4>
-            <Select options={dietaryOptions} isMulti placeholder="Dietary Restrictions" styles={customStyles}/>
-            <Select options={cuisineOptions} isMulti placeholder="Preferred Cuisines" styles={customStyles}/>
+          <div className="bg-white rounded-lg p-5 w-1/4 shadow-md">
+            <div className="flex flex-col gap-5">
+              <h4 className="font-bold text-center">Preferences</h4>
+              <Select options={dietaryOptions} isMulti placeholder="Dietary Restrictions" styles={customStyles} />
+              <Select options={cuisineOptions} isMulti placeholder="Preferred Cuisines" styles={customStyles} />
+            </div>
           </div>
-        </div>
-        <div className="profile-facts-card">
-          <div className="profile-facts-card-inner">
-            <div className="profile-fact">
-              <img src={dollarIcon} alt="Dollar" className="fact-icon" />
-              <p><strong>$50</strong> Saved</p>
-            </div>
-            <div className="profile-fact">
-              <img src={ingredientsIcon} alt="Ingredients" className="fact-icon" />
-              <p><strong>7</strong> Ingredients Saved</p>
-            </div>
-            <div className="profile-fact">
-              <img src={receiptsIcon} alt="Receipts" className="fact-icon" />
-              <p><strong>3</strong> Receipts Uploaded</p>
-            </div>
-            <div className="profile-fact">
-              <img src={kitchensIcon} alt="Kitchens" className="fact-icon" />
-              <p><strong>2</strong> Kitchens Uploaded</p>
-            </div>
-            <div className="profile-fact">
-              <img src={favoriteIcon} alt="Favorites" className="fact-icon" />
-              <p><strong>5</strong> Favorite Meals</p>
+          <div className="bg-white rounded-lg p-5 w-1/4 shadow-md flex flex-col justify-between">
+            <div className="flex flex-col gap-5">
+              <div className="flex items-center justify-start bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
+                <img src={ingredientsIcon} alt="Ingredients" className="w-8 h-8 mr-2" />
+                <p><strong>7</strong> Ingredients Saved</p>
+              </div>
+              <div className="flex items-center justify-start bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
+                <img src={receiptsIcon} alt="Receipts" className="w-8 h-8 mr-2" />
+                <p><strong>3</strong> Receipts Uploaded</p>
+              </div>
+              <div className="flex items-center justify-start bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
+                <img src={favoriteIcon} alt="Favorites" className="w-8 h-8 mr-2" />
+                <p><strong>5</strong> Favorite Meals</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className="profile-bottom-section">
-        <h2>Favorites</h2>
-        <div className="favorites-scroll">
-          {meals.map((meal, index) => (
-            <MealCard key={index} meal={meal} isProfile={true} />
-          ))}
+        <div className="w-full">
+          <h2 className="text-xl font-bold mb-3 text-center text-custom-red-300">Favorites</h2>
+          <div className="flex gap-5 overflow-x-auto whitespace-nowrap rounded-lg">
+            {meals.map((meal, index) => (
+              <MealCard key={index} meal={meal} isProfile={true} />
+            ))}
+          </div>
         </div>
       </div>
     </div>

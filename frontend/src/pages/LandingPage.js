@@ -4,7 +4,7 @@ import receipt from '../assets/receipt.png';
 import tomato from '../assets/tomato.png';
 import grocery from '../assets/grocery.png';
 import meal from '../assets/meal.png';
-import profile from '../assets/profile.png';
+import profile from '../assets/user.png';
 import logo from '../assets/logo.png';
 
 const ingredients = [
