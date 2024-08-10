@@ -2,7 +2,7 @@ import React from 'react';
 import Select from 'react-select';
 import { Chart, ArcElement, Tooltip } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import MealCard from '../MealCard/MealCard';
+import MealCard from '../MealCard';
 import profileImg from '../../assets/profile.png';
 import saladImg from '../../assets/salad.jpg';
 import dollarIcon from '../../assets/coin-outline.png';

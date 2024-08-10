@@ -1,10 +1,4 @@
-.meal-card-generation {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-  }
-  
-  .flash-green {
+.flash-green {
     animation: flash-green 0.5s;
   }
   
@@ -14,13 +8,12 @@
   
   @keyframes flash-green {
     0% { background-color: #fff; }
-    50% { background-color: #aaf0aa; }
+    50% { background-color: #c6f6d5; }
     100% { background-color: #fff; }
   }
   
   @keyframes flash-red {
     0% { background-color: #fff; }
-    50% { background-color: #ffaaaa; }
+    50% { background-color: #C75B7A; }
     100% { background-color: #fff; }
   }
-  
