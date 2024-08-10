@@ -46,7 +46,7 @@ const Login = () => {
         <p className="text-center text-black">
           Want to Start Swiping?{' '}
           <span 
-            className="text-blue-500 cursor-pointer" 
+            className="text-green-500 cursor-pointer" 
             onClick={() => navigate('/register')}
           >
             Sign up Now!

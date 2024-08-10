@@ -1,12 +1,9 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import emailIcon from '../assets/gmail.png';
 
-const GrocerList = () => {
-  const navigate = useNavigate();
-
-  // TODO: Get favorite meals
+const GroceryList = () => {
+  // TODO: Get favorite meals (names and ingredients only)
   const favoriteMeals = [
     {
       name: 'Spaghetti Bolognese',
@@ -50,7 +47,7 @@ const GrocerList = () => {
   }, []);
 
   const handleEmailList = () => {
-    // TODO: Logic to email the grocery list
+    // TODO: Logic to email the grocery list?
     console.log('Emailing grocery list...');
   };
 
@@ -90,4 +87,4 @@ const GrocerList = () => {
   );
 };
 
-export default GrocerList;
+export default GroceryList;

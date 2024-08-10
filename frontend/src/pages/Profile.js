@@ -1,17 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Select from 'react-select';
 import { Chart, ArcElement, Tooltip } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import MealCard from '../MealCard';
-import profile from '../../assets/profile-user.png';
-import saladImg from '../../assets/salad.jpg';
-import ingredientsIcon from '../../assets/tomato.png';
-import receiptsIcon from '../../assets/receipt.png';
-import favoriteIcon from '../../assets/star-filled.png';
+import MealCard from './MealCard';
+import profile from '../assets/profile-user.png';
+import saladImg from '../assets/salad.jpg';
+import ingredientsIcon from '../assets/tomato.png';
+import receiptsIcon from '../assets/receipt.png';
+import favoriteIcon from '../assets/star-filled.png';
 
 Chart.register(ArcElement, Tooltip);
 
 const Profile = () => {
+  // TODO: Get profile data
+  const getProfileData = () => {
+    return {
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      mealsGenerated: 5,
+      mealsAccepted: 3,
+      mealsRejected: 2,
+      dietaryRestrictions: ['Vegetarian', 'Gluten-Free'], // Sample saved data
+      preferredCuisines: ['Italian', 'Indian'], // Sample saved data
+      ingredientsSaved: 7,
+      receiptsUploaded: 3,
+      favoriteMeals: 5,
+    };
+  };
+
+  // TODO: Get favorite meals
+  const getFavoriteMeals = () => {
+    const salad = {
+      image: saladImg,
+      name: 'Veggie Supreme Salad',
+      calories: 150,
+      cookTime: 10,
+      ingredients: {
+        'Lettuce': '2 cups',
+        'Tomato': '1 cup',
+        'Cucumber': '1 cup',
+        'Olive Oil': '2 tbsp',
+        'Lemon Juice': '1 tbsp',
+        'Salt': 'to taste',
+        'Pepper': 'to taste',
+      },
+    };
+
+    return [salad, salad, salad, salad, salad];
+  };
+
+  const profileData = getProfileData();
+  const meals = getFavoriteMeals();
+
   const dietaryOptions = [
     { value: 'vegetarian', label: 'Vegetarian', color: '#4caf50' },
     { value: 'vegan', label: 'Vegan', color: '#ff9800' },
@@ -50,29 +90,11 @@ const Profile = () => {
     }),
   };
 
-  const salad = {
-    image: saladImg,
-    name: 'Veggie Supreme Salad',
-    calories: 150,
-    cookTime: 10,
-    ingredients: {
-      'Lettuce': '2 cups',
-      'Tomato': '1 cup',
-      'Cucumber': '1 cup',
-      'Olive Oil': '2 tbsp',
-      'Lemon Juice': '1 tbsp',
-      'Salt': 'to taste',
-      'Pepper': 'to taste',
-    },
-  };
-
-  const meals = [salad, salad, salad, salad, salad]; // Add more meals as needed
-
   const donutData = {
     labels: ['Accepted', 'Rejected'],
     datasets: [
       {
-        data: [60, 40], // Example data
+        data: [profileData.mealsAccepted, profileData.mealsRejected],
         backgroundColor: ['#15803d', '#921A40'],
         hoverBackgroundColor: ['#16a34a', '#C75B7A'],
       },
@@ -95,6 +117,30 @@ const Profile = () => {
     },
   };
 
+  const handleAccept = () => {
+    // Dummy function for now
+  };
+
+  const handleReject = () => {
+    // Dummy function for now
+  };
+
+  const [selectedDietaryRestrictions, setSelectedDietaryRestrictions] = useState(profileData.dietaryRestrictions);
+  const [selectedCuisines, setSelectedCuisines] = useState(profileData.preferredCuisines);
+
+  const handleSavePreferences = () => {
+    const preferencesData = {
+      dietaryRestrictions: selectedDietaryRestrictions,
+      preferredCuisines: selectedCuisines,
+    };
+
+    // TODO: Save preferencesData to the database
+    console.log('Preferences saved:', preferencesData);
+  };
+
+  const availableDietaryOptions = dietaryOptions.filter(option => !selectedDietaryRestrictions.includes(option.label));
+  const availableCuisineOptions = cuisineOptions.filter(option => !selectedCuisines.includes(option.label));
+
   return (
     <div className="bg-custom-white">
       <div className="flex flex-col items-center w-4/5 h-4/5 mx-auto bg-custom-red p-5 shadow-lg rounded-lg">
@@ -102,37 +148,57 @@ const Profile = () => {
           <div className="bg-white rounded-lg p-5 w-1/4 shadow-md flex flex-col items-center">
             <img src={profile} alt="Profile" className="w-36 h-36 rounded-full mb-3 border border-black" />
             <div className="text-center">
-              <h2 className="text-black text-2xl">John Doe</h2>
-              <p className="text-gray-500 text-sm">john.doe@example.com</p>
+              <h2 className="text-black text-2xl">{profileData.name}</h2>
+              <p className="text-gray-500 text-sm">{profileData.email}</p>
             </div>
           </div>
           <div className="bg-white rounded-lg p-5 w-1/4 shadow-md flex flex-col items-center">
             <Doughnut data={donutData} options={donutOptions} />
             <div className="text-center mt-2">
-              <p className="text-custom-red-300 text-2xl font-bold">5</p>
+              <p className="text-custom-red-300 text-2xl font-bold">{profileData.mealsGenerated}</p>
               <span className="text-gray-500">Meals Generated</span>
             </div>
           </div>
           <div className="bg-white rounded-lg p-5 w-1/4 shadow-md">
             <div className="flex flex-col gap-5">
               <h4 className="font-bold text-center">Preferences</h4>
-              <Select options={dietaryOptions} isMulti placeholder="Dietary Restrictions" styles={customStyles} />
-              <Select options={cuisineOptions} isMulti placeholder="Preferred Cuisines" styles={customStyles} />
+              <Select
+                options={availableDietaryOptions}
+                isMulti
+                placeholder="Dietary Restrictions"
+                styles={customStyles}
+                value={selectedDietaryRestrictions.map(label => dietaryOptions.find(option => option.label === label))}
+                onChange={(selectedOptions) => setSelectedDietaryRestrictions(selectedOptions.map(option => option.label))}
+              />
+              <Select
+                options={availableCuisineOptions}
+                isMulti
+                placeholder="Preferred Cuisines"
+                styles={customStyles}
+                value={selectedCuisines.map(label => cuisineOptions.find(option => option.label === label))}
+                onChange={(selectedOptions) => setSelectedCuisines(selectedOptions.map(option => option.label))}
+              />
+              <button 
+                className="mt-5 bg-custom-red-300 text-white font-bold rounded-md py-3 px-6 hover:bg-custom-red-200 mx-auto"
+                onClick={handleSavePreferences}
+              >
+              Save
+            </button>
             </div>
           </div>
           <div className="bg-white rounded-lg p-5 w-1/4 shadow-md flex flex-col justify-between">
             <div className="flex flex-col gap-5">
               <div className="flex items-center justify-start bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
                 <img src={ingredientsIcon} alt="Ingredients" className="w-8 h-8 mr-2" />
-                <p><strong>7</strong> Ingredients Saved</p>
+                <p><strong>{profileData.ingredientsSaved}</strong> Ingredients Saved</p>
               </div>
               <div className="flex items-center justify-start bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
                 <img src={receiptsIcon} alt="Receipts" className="w-8 h-8 mr-2" />
-                <p><strong>3</strong> Receipts Uploaded</p>
+                <p><strong>{profileData.receiptsUploaded}</strong> Receipts Uploaded</p>
               </div>
               <div className="flex items-center justify-start bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
                 <img src={favoriteIcon} alt="Favorites" className="w-8 h-8 mr-2" />
-                <p><strong>5</strong> Favorite Meals</p>
+                <p><strong>{profileData.favoriteMeals}</strong> Favorite Meals</p>
               </div>
             </div>
           </div>
@@ -141,7 +207,7 @@ const Profile = () => {
           <h2 className="text-xl font-bold mb-3 text-center text-custom-red-300">Favorites</h2>
           <div className="flex gap-5 overflow-x-auto whitespace-nowrap rounded-lg">
             {meals.map((meal, index) => (
-              <MealCard key={index} meal={meal} isProfile={true} />
+              <MealCard key={index} meal={meal} isProfile={true} onAccept={handleAccept} onReject={handleReject} />
             ))}
           </div>
         </div>

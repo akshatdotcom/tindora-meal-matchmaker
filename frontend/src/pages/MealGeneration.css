@@ -17,3 +17,25 @@
     50% { background-color: #C75B7A; }
     100% { background-color: #fff; }
   }
+
+  .flash-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+  }
+  
+  .flash-green {
+    background-color: #c6f6d5;
+    opacity: 1;
+  }
+  
+  .flash-red {
+    background-color: #C75B7A; 
+    opacity: 1;
+  }
+  

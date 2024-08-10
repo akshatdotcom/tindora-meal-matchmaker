@@ -9,7 +9,16 @@ const MealCard = ({ meal, isProfile, onAccept, onReject }) => {
 
   const handleFavoriteClick = () => {
     setIsFavorite(!isFavorite);
-    // TODO: Add to favorites in the database
+  };
+
+  const handleAccept = () => {
+    onAccept(isFavorite); // Pass the favorite status to the parent
+    setIsFavorite(false); // Reset favorite status after accepting
+  };
+
+  const handleReject = () => {
+    onReject(isFavorite); // Pass the favorite status to the parent
+    setIsFavorite(false); // Reset favorite status after accepting
   };
 
   return (
@@ -35,10 +44,7 @@ const MealCard = ({ meal, isProfile, onAccept, onReject }) => {
         <div className="text-center mt-4">
           <ul className="columns-2 space-y-1 list-disc text-sm">
             {Object.entries(meal.ingredients).map(([ingredient, quantity], index) => (
-              <li
-                key={index}
-                className="break-words pr-2"
-              >
+              <li key={index} className="break-words pr-2">
                 {ingredient}: {quantity}
               </li>
             ))}
@@ -49,13 +55,13 @@ const MealCard = ({ meal, isProfile, onAccept, onReject }) => {
         <div className="flex w-full h-16 mt-4">
           <button
             className="flex-1 bg-custom-red-300 hover:bg-custom-red-200 text-white flex items-center justify-center h-full"
-            onClick={onReject}
+            onClick={handleReject}
           >
             <img src={remove} alt="Remove" className="w-8 h-8" />
           </button>
           <button
             className="flex-1 bg-green-500 hover:bg-green-400 text-white flex items-center justify-center h-full"
-            onClick={onAccept}
+            onClick={handleAccept}
           >
             <img src={check} alt="Check" className="w-10 h-10" />
           </button>

@@ -10,8 +10,15 @@ const MealGeneration = ({ meals }) => {
   const mealCardRef = useRef(null);
   const navigate = useNavigate();
 
+  const [mealsGenerated, setMealsGenerated] = useState(0);
+  const [mealsAccepted, setMealsAccepted] = useState(0);
+  const [mealsRejected, setMealsRejected] = useState(0);
+  const [ingredientsSaved, setIngredientsSaved] = useState(0);
+  const [mealsFavorited, setMealsFavorited] = useState(0);
+
   useEffect(() => {
     resetPosition();
+    setMealsGenerated(meals.length);
   }, [meals]);
 
   const handleDragStart = (event) => {
@@ -44,7 +51,7 @@ const MealGeneration = ({ meals }) => {
       // Check if the card touches the right edge
       if (mealCard.offsetLeft + mealCard.offsetWidth >= window.innerWidth) {
         document.body.classList.add('flash-green');
-        setTimeout(() => handleMealAccept(), 25);
+        setTimeout(() => handleMealAccept(), 500);
         return;
       } else {
         document.body.classList.remove('flash-green');
@@ -53,7 +60,7 @@ const MealGeneration = ({ meals }) => {
       // Check if the card touches the left edge
       if (mealCard.offsetLeft <= 0) {
         document.body.classList.add('flash-red');
-        setTimeout(() => handleMealReject(), 25);
+        setTimeout(() => handleMealReject(), 500);
         return;
       } else {
         document.body.classList.remove('flash-red');
@@ -72,20 +79,38 @@ const MealGeneration = ({ meals }) => {
     document.body.classList.remove('flash-green', 'flash-red');
   };
 
-  const handleMealAccept = () => {
+  const handleMealAccept = (isFavorite) => {
     const meal = meals[currentMealIndex];
-    // TODO: Send meal to the database
+    const ingredientCount = Object.keys(meal.ingredients).length;
+    setIngredientsSaved((prev) => prev + ingredientCount);
+    setMealsAccepted((prev) => prev + 1);
+
+    // Add to favorites if the meal is favorited
+    if (isFavorite) {
+      // TODO: Add meal to favorites in the database
+      setMealsFavorited((prev) => prev + 1);
+      console.log('Meal favorited:', meal);
+    }
+
+    // TODO: Send accepted meal to the database as meal object to be stored in current meals
     console.log('Meal accepted:', meal);
-  
+
     setTimeout(() => {
       moveToNextMeal();
       resetPosition();
     }, 500);
   };
-  
-  const handleMealReject = () => {
+
+  const handleMealReject = (isFavorite) => {
+    setMealsRejected((prev) => prev + 1);
+    // Add to favorites if the meal is favorited
+    if (isFavorite) {
+      // TODO: Add meal to favorites in the database
+      setMealsFavorited((prev) => prev + 1);
+      console.log('Meal favorited:', meal);
+    }
     console.log('Meal rejected:', meals[currentMealIndex]);
-  
+
     setTimeout(() => {
       moveToNextMeal();
       resetPosition();
@@ -96,7 +121,13 @@ const MealGeneration = ({ meals }) => {
     if (currentMealIndex < meals.length - 1) {
       setCurrentMealIndex(currentMealIndex + 1);
     } else {
-      console.log('All meals processed. Redirecting to home.');
+      console.log('All meals processed. Updating database with counts.');
+      console.log("Meals Generated: ", mealsGenerated);
+      console.log("Meals Accepted: ", mealsAccepted);
+      console.log("Meals Rejected: ", mealsRejected);
+      console.log("Ingredients Saved: ", ingredientsSaved);
+      console.log("Meals Favorited: ", mealsFavorited);
+      // TODO: Update the database with the counts (mealsGenerated, mealsRejected, mealsAccepted, ingredientsSaved, mealsFavorited)
       navigate('/home');
     }
   };
@@ -108,7 +139,7 @@ const MealGeneration = ({ meals }) => {
   const meal = meals[currentMealIndex >= meals.length ? meals.length - 1 : currentMealIndex];
 
   return (
-    <div className="meal-card-generation flex items-center justify-center h-screen relative cursor-pointer select-none bg-custom-white">
+    <div className="meal-card-generation flex items-center justify-center h-screen relative cursor-pointer select-none">
       <div
         className="absolute"
         draggable
