@@ -108,7 +108,7 @@ const MealGeneration = ({ meals }) => {
   const meal = meals[currentMealIndex >= meals.length ? meals.length - 1 : currentMealIndex];
 
   return (
-    <div className="meal-card-generation flex items-center justify-center h-screen relative cursor-pointer select-none">
+    <div className="meal-card-generation flex items-center justify-center h-screen relative cursor-pointer select-none bg-custom-white">
       <div
         className="absolute"
         draggable

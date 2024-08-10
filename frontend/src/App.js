@@ -7,7 +7,7 @@ import MealGeneration from './pages/MealGeneration';
 import Profile from './pages/Profile/Profile';
 import Login from './pages/Login.js';
 import Registration from './pages/Registration.js';
-import Groceries from './pages/Groceries/Groceries';
+import Groceries from './pages/Groceries.js';
 import salad from './assets/salad.jpg';
 
 const App = () => {

@@ -84,7 +84,7 @@ const LandingPage = () => {
       <div className="flex h-4/5">
         <div className="flex flex-col w-1/3 p-5">
           <div className="max-h-[60vh] overflow-y-auto border border-gray-300 bg-gray-100 shadow-md font-mono">
-            <h1 className="sticky top-0 bg-white p-2 m-0 z-10 text-center font-montserrat">Ingredients List</h1>
+            <h1 className="sticky top-0 bg-white p-2 m-0 z-10 text-center font-montserrat font-bold">Ingredients List</h1>
             <table className="w-full border-collapse">
               <thead>
                 <tr>
@@ -138,8 +138,8 @@ const LandingPage = () => {
           </button>
         </div>
         <div className="flex flex-col w-1/3 p-5">
-          <div className="max-h-[60vh] overflow-y-auto border border-gray-300 bg-gray-100 shadow-md">
-            <h1 className="sticky top-0 bg-white p-2 m-0 z-10 text-center font-montserrat">Current Meals</h1>
+          <div className="max-h-[60vh] overflow-y-auto border border-gray-300 bg-gray-100 shadow-md font-mono">
+            <h1 className="sticky top-0 bg-white p-2 m-0 z-10 text-center font-montserrat font-bold">Current Meals</h1>
             <table className="w-full border-collapse">
               <thead>
                 <tr>
