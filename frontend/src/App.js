@@ -23,13 +23,13 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import './App.css';
-import LandingPage from './pages/LandingPage/LandingPage';
+import './index.js';
+import LandingPage from './pages/LandingPage.js';
 import MealCard from './pages/MealCard/MealCard';
 import MealGeneration from './pages/MealGeneration/MealGeneration';
 import Profile from './pages/Profile/Profile';
-import Login from './pages/Login/Login';
-import Registration from './pages/Registration/Registration';
+import Login from './pages/Login.js';
+import Registration from './pages/Registration.js';
 import Groceries from './pages/Groceries/Groceries';
 
 
