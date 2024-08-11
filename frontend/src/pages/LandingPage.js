@@ -157,7 +157,7 @@ const LandingPage = () => {
       <div className="flex h-1/5 justify-between mb-2">
         <div className="flex flex-col items-center pl-16 flex-grow">
           <img src={logo} alt="Logo" className="h-full" />
-          <div className="text-lg text-center">swipe right and take a bite!</div>
+          <div className="text-lg text-center pl-5">swipe right and take a bite!</div>
         </div>
         <button onClick={handleProfile} className="relative w-20 h-20 rounded-full bg-custom-white cursor-pointer flex items-center justify-center">
           <img src={profile} alt="Profile" className="max-w-[70%] max-h-[70%] mb-2" />
