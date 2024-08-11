@@ -155,7 +155,7 @@ const Profile = () => {
           <div className="bg-white rounded-lg p-5 w-1/4 shadow-md flex flex-col items-center">
             <Doughnut data={donutData} options={donutOptions} />
             <div className="text-center mt-2">
-              <p className="text-custom-red-300 text-2xl font-bold">{profileData.mealsGenerated}</p>
+              <p className="text-custom-red-200 text-2xl font-bold">{profileData.mealsGenerated}</p>
               <span className="text-gray-500">Meals Generated</span>
             </div>
           </div>
@@ -190,15 +190,15 @@ const Profile = () => {
             <div className="flex flex-col gap-5">
               <div className="flex items-center justify-start bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
                 <img src={ingredientsIcon} alt="Ingredients" className="w-8 h-8 mr-2" />
-                <p><strong>{profileData.ingredientsSaved}</strong> Ingredients Saved</p>
+                <p><strong className='text-custom-red-200'>{profileData.ingredientsSaved}</strong> Ingredients Saved</p>
               </div>
               <div className="flex items-center justify-start bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
                 <img src={receiptsIcon} alt="Receipts" className="w-8 h-8 mr-2" />
-                <p><strong>{profileData.receiptsUploaded}</strong> Receipts Uploaded</p>
+                <p><strong className='text-custom-red-200'>{profileData.receiptsUploaded}</strong> Receipts Uploaded</p>
               </div>
               <div className="flex items-center justify-start bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
                 <img src={favoriteIcon} alt="Favorites" className="w-8 h-8 mr-2" />
-                <p><strong>{profileData.favoriteMeals}</strong> Favorite Meals</p>
+                <p><strong className='text-custom-red-200'>{profileData.favoriteMeals}</strong> Favorite Meals</p>
               </div>
             </div>
           </div>
