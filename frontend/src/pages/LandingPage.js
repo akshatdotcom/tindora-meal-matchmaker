@@ -66,7 +66,7 @@ const LandingPage = () => {
       {
         name: 'Chicken Stir Fry',
         ingredients: 'Chicken Breast, Onions, Bell Peppers',
-        earliestExpirationDate: '2024-06-12',
+        earliestExpirationDate: '2024-08-12',
       },
       {
         name: 'Vegetable Soup',
@@ -135,6 +135,19 @@ const LandingPage = () => {
     setIngredients(updatedIngredients);
   };
 
+  const getTodaysDate = () => {
+    // TODO: Replace with actual logic to get today's date
+    return new Date('2024-06-15');
+  };
+
+  // Function to check if a date is within 3 days from today
+  const isWithinThreeDays = (date) => {
+    const today = getTodaysDate();
+    const targetDate = new Date(date);
+    const diffInDays = (targetDate - today) / (1000 * 60 * 60 * 24);
+    return diffInDays <= 3;
+  };
+
   // Sort by increasing expiration date
   const sortedIngredients = [...ingredients].sort((a, b) => new Date(a.expirationDate) - new Date(b.expirationDate));
   const sortedCurrentMeals = [...currentMeals].sort((a, b) => new Date(a.earliestExpirationDate) - new Date(b.earliestExpirationDate));
@@ -164,14 +177,22 @@ const LandingPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {sortedIngredients.map(ingredient => (
-                  <tr key={ingredient.id}>
-                    <td className="p-3 border-b border-gray-300">{ingredient.name}</td>
-                    <td className="p-3 border-b border-gray-300">{ingredient.quantity}</td>
-                    <td className="p-3 border-b border-gray-300">{ingredient.buyDate}</td>
-                    <td className="p-3 border-b border-gray-300">{ingredient.expirationDate}</td>
-                  </tr>
-                ))}
+              {sortedIngredients.map(ingredient => (
+                <tr key={ingredient.id}>
+                  <td className="p-3 border-b border-gray-300">
+                    {ingredient.name}
+                  </td>
+                  <td className="p-3 border-b border-gray-300">
+                    {ingredient.quantity}
+                  </td>
+                  <td className="p-3 border-b border-gray-300">
+                    {ingredient.buyDate}
+                  </td>
+                  <td className={isWithinThreeDays(ingredient.expirationDate) ? 'p-3 border-b border-gray-300 text-custom-red-200' : 'p-3 border-b border-gray-300'}>
+                    {ingredient.expirationDate}
+                  </td>
+                </tr>
+              ))}
               </tbody>
             </table>
           </div>
@@ -218,11 +239,17 @@ const LandingPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {sortedCurrentMeals.map((meal, index) => (
-                  <tr key={index}>
-                    <td className="p-3 border-b border-gray-300">{meal.name}</td>
-                    <td className="p-3 border-b border-gray-300">{meal.ingredients}</td>
-                    <td className="p-3 border-b border-gray-300">{meal.earliestExpirationDate}</td>
+                {sortedCurrentMeals.map(meal => (
+                  <tr key={meal.id}>
+                    <td className="p-3 border-b border-gray-300">
+                      {meal.name}
+                    </td>
+                    <td className="p-3 border-b border-gray-300">
+                      {meal.ingredients}
+                    </td>
+                    <td className={isWithinThreeDays(meal.earliestExpirationDate) ? 'p-3 border-b border-gray-300 text-custom-red-200' : 'p-3 border-b border-gray-300'}>
+                      {meal.earliestExpirationDate}
+                    </td>
                   </tr>
                 ))}
               </tbody>
