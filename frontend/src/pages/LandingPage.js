@@ -10,6 +10,10 @@ import logo from "../assets/logo.png";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 
+import { doc, setDoc } from "firebase/firestore";
+
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
 const LandingPage = () => {
   const navigate = useNavigate();
   const [receiptUploaded, setReceiptUploaded] = useState(false);
@@ -51,7 +55,7 @@ const LandingPage = () => {
 
       return () => unsubscribe();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth, navigate]);
 
   const getIngredients = async (uid) => {
@@ -98,13 +102,113 @@ const LandingPage = () => {
     }
   };
 
-  const handleSubmitReceipt = (file) => {
-    // TODO: Logic to submit the receipt to the database
-    // Add one to count of number uploaded recipets for profile page
-    console.log("Submitting receipt:", file.name);
-    setReceiptUploaded(false);
-    setReceiptFile(null);
-    setInputValue("");
+  const handleSubmitReceipt = async (file) => {
+    try {
+      const imageBuffer = await file.arrayBuffer();
+      const base64Image = btoa(
+        new Uint8Array(imageBuffer).reduce(
+          (data, byte) => data + String.fromCharCode(byte),
+          ""
+        )
+      );
+
+      const genAI = new GoogleGenerativeAI(
+        "AIzaSyCQVb79NBO9crsndXAaV3dPvzSWrqDk0hg"
+      );
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+      const prompt = `Given the image of the attached receipt, extract and display the following in a consistent format:
+      
+      - Receipt purchase date
+      - Each item's name (infer a simple, generalized name given the words on the receipt without branding), total quantity (infer based on unit price and quantity purchased), and estimated expiration date (give a best guess for an exact date based on item and purchase date). The buy date is likely close to today's date.
+      
+      Ignore items that are inedible or irrelevant to cooking ingredients.
+      
+      Only use the image as context. Do not add any extra items.
+      
+      Your response must be in JSON format in the following schema:
+      
+      {
+          "ingredients": [
+              {
+              "name": "Item name",
+              "quantity": 1,
+              "buyDate": "YYYY-MM-DD",
+              "expirationDate": "YYYY-MM-DD"
+              },
+              {
+              "name": "Item name",
+              "quantity": 1,
+              "buyDate": "YYYY-MM-DD",
+              "expirationDate": "YYYY-MM-DD"
+              },
+              ...
+          ]
+      }
+      
+      The JSON will be immediately parsed without any human intervention. If the JSON is not in the correct format, the response will be considered incorrect.`;
+
+      const imageParts = [
+        {
+          inlineData: {
+            data: base64Image,
+            mimeType: file.type,
+          },
+        },
+      ];
+
+      const result = await model.generateContent([prompt, ...imageParts]);
+      const response = await result.response;
+      const text = response
+        .text()
+        .replace(/```|json/gi, "")
+        .trim();
+      console.log(text);
+      const jsonText = JSON.parse(text);
+
+      // Update state with new ingredients
+      setIngredients((prevIngredients) => [
+        ...prevIngredients,
+        ...jsonText.ingredients.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+          buyDate: item.buyDate,
+          expirationDate: item.expirationDate,
+        })),
+      ]);
+
+      console.log(ingredients);
+
+      console.log("Receipt processed successfully:", jsonText);
+      setReceiptUploaded(false);
+      setReceiptFile(null);
+      setInputValue("");
+
+      // Save the new ingredients to the database
+      const ingredientsCollection = collection(
+        db,
+        "users",
+        user.uid,
+        "ingredients"
+      );
+
+      await Promise.all(
+        jsonText.ingredients.map(async (item) => {
+          // Create new doc in the ingredients collection for each ingredient
+          const newDocRef = doc(ingredientsCollection);
+
+          await setDoc(newDocRef, {
+            name: item.name,
+            quantity: item.quantity,
+            buyDate: item.buyDate,
+            expirationDate: item.expirationDate,
+          });
+        })
+      );
+    } catch (error) {
+      console.error("Error processing receipt:", error);
+      alert("Failed to process receipt. Please try again.");
+    }
   };
 
   const openModal = () => {
@@ -127,23 +231,45 @@ const LandingPage = () => {
   };
 
   const handleSaveIngredient = async () => {
-    // TODO: Save the new ingredient to the database
-    console.log("Saving new ingredient:", newIngredient);
-    closeModal();
+    try {
+      // Get a reference to the user's ingredients collection
+      const ingredientsCollection = collection(
+        db,
+        "users",
+        user.uid,
+        "ingredients"
+      );
 
-    // After saving, fetch the updated ingredients
-    const updatedIngredients = await getIngredients();
-    setIngredients(updatedIngredients);
-  };
+      const newIngredientData = {
+        name: newIngredient.name,
+        quantity: newIngredient.quantity,
+        buyDate: newIngredient.buyDate,
+        expirationDate: newIngredient.expirationDate,
+      };
 
-  const getTodaysDate = () => {
-    // TODO: Replace with actual logic to get today's date
-    return new Date("2024-06-15");
+      // Create a new document reference
+      const newIngredientRef = doc(ingredientsCollection);
+
+      // Save the new ingredient to the database
+      await setDoc(newIngredientRef, newIngredientData);
+
+      console.log("Saving new ingredient:", newIngredient);
+      closeModal();
+
+      // Update state with the new ingredient
+      setIngredients((prevIngredients) => [
+        ...prevIngredients,
+        newIngredientData,
+      ]);
+    } catch (error) {
+      console.error("Error saving ingredient:", error);
+      // You might want to show an error message to the user here
+    }
   };
 
   // Function to check if a date is within 3 days from today
   const isWithinThreeDays = (date) => {
-    const today = getTodaysDate();
+    const today = Date.now();
     const targetDate = new Date(date);
     const diffInDays = (targetDate - today) / (1000 * 60 * 60 * 24);
     return diffInDays <= 3;
@@ -235,7 +361,7 @@ const LandingPage = () => {
                 className="max-w-[40%] max-h-[40%] mb-1"
               />
               <span className="text-center text-sm text-white font-bold">
-                {receiptUploaded ? "Submit" : "Upload Receipt"}
+                {receiptUploaded ? "Processing..." : "Upload Receipt"}
               </span>
               <input
                 type="file"
