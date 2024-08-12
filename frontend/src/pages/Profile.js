@@ -1,56 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { Chart, ArcElement, Tooltip } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import MealCard from './MealCard';
 import profile from '../assets/profile-user.png';
-import saladImg from '../assets/salad.jpg';
 import ingredientsIcon from '../assets/tomato.png';
 import receiptsIcon from '../assets/receipt.png';
 import favoriteIcon from '../assets/star-filled.png';
+import { db } from '../firebase/db.js';
+import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 Chart.register(ArcElement, Tooltip);
 
 const Profile = () => {
-  // TODO: Get profile data
-  const getProfileData = () => {
-    return {
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      mealsGenerated: 5,
-      mealsAccepted: 3,
-      mealsRejected: 2,
-      dietaryRestrictions: ['Vegetarian', 'Gluten-Free'], // Sample saved data
-      preferredCuisines: ['Italian', 'Indian'], // Sample saved data
-      ingredientsSaved: 7,
-      receiptsUploaded: 3,
-      favoriteMeals: 5,
+  const [profileData, setProfileData] = useState(null);
+  const [selectedDietaryRestrictions, setSelectedDietaryRestrictions] = useState([]);
+  const [selectedCuisines, setSelectedCuisines] = useState([]);
+  const [favoriteMeals, setFavoriteMeals] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const userRef = doc(db, 'users', currentUser.uid);
+        const userDoc = await getDoc(userRef);
+        
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setProfileData(data);
+          setSelectedDietaryRestrictions(data.dietaryRestrictions || []);
+          setSelectedCuisines(data.cuisines || []);
+        } else {
+          console.log('No such document!');
+        }
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      }
     };
-  };
 
-  // TODO: Get favorite meals
-  const getFavoriteMeals = () => {
-    const salad = {
-      image: saladImg,
-      name: 'Veggie Supreme Salad',
-      calories: 150,
-      cookTime: 10,
-      ingredients: {
-        'Lettuce': '2 cups',
-        'Tomato': '1 cup',
-        'Cucumber': '1 cup',
-        'Olive Oil': '2 tbsp',
-        'Lemon Juice': '1 tbsp',
-        'Salt': 'to taste',
-        'Pepper': 'to taste',
-      },
+    const fetchFavoriteMeals = async () => {
+      try {
+        const favoriteMealsRef = collection(db, `users/${currentUser.uid}/favoriteMeals`);
+        const favoriteMealsSnapshot = await getDocs(favoriteMealsRef);
+        const meals = favoriteMealsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setFavoriteMeals(meals);
+      } catch (error) {
+        console.error('Error fetching favorite meals:', error);
+      }
     };
 
-    return [salad, salad, salad, salad, salad];
-  };
+    if (currentUser?.uid) {
+      fetchProfileData();
+      fetchFavoriteMeals();
+    }
+  }, [currentUser?.uid]);
 
-  const profileData = getProfileData();
-  const meals = getFavoriteMeals();
+  if (!profileData) {
+    return <div>Loading...</div>;
+  }
 
   const dietaryOptions = [
     { value: 'vegetarian', label: 'Vegetarian', color: '#4caf50' },
@@ -94,7 +117,7 @@ const Profile = () => {
     labels: ['Accepted', 'Rejected'],
     datasets: [
       {
-        data: [profileData.mealsAccepted, profileData.mealsRejected],
+        data: [profileData.mealsAccepted || 0, profileData.mealsRejected || 0],
         backgroundColor: ['#15803d', '#921A40'],
         hoverBackgroundColor: ['#16a34a', '#C75B7A'],
       },
@@ -117,6 +140,21 @@ const Profile = () => {
     },
   };
 
+  const handleSavePreferences = async () => {
+    const preferencesData = {
+      dietaryRestrictions: selectedDietaryRestrictions,
+      cuisines: selectedCuisines,
+    };
+  
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, preferencesData);
+      console.log('Preferences saved:', preferencesData);
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+    }
+  };
+
   const handleAccept = () => {
     // Dummy function for now
   };
@@ -124,22 +162,6 @@ const Profile = () => {
   const handleReject = () => {
     // Dummy function for now
   };
-
-  const [selectedDietaryRestrictions, setSelectedDietaryRestrictions] = useState(profileData.dietaryRestrictions);
-  const [selectedCuisines, setSelectedCuisines] = useState(profileData.preferredCuisines);
-
-  const handleSavePreferences = () => {
-    const preferencesData = {
-      dietaryRestrictions: selectedDietaryRestrictions,
-      preferredCuisines: selectedCuisines,
-    };
-
-    // TODO: Save preferencesData to the database
-    console.log('Preferences saved:', preferencesData);
-  };
-
-  const availableDietaryOptions = dietaryOptions.filter(option => !selectedDietaryRestrictions.includes(option.label));
-  const availableCuisineOptions = cuisineOptions.filter(option => !selectedCuisines.includes(option.label));
 
   return (
     <div className="bg-custom-white">
@@ -153,17 +175,26 @@ const Profile = () => {
             </div>
           </div>
           <div className="bg-white rounded-lg p-5 w-1/4 shadow-md flex flex-col items-center">
-            <Doughnut data={donutData} options={donutOptions} />
-            <div className="text-center mt-2">
-              <p className="text-custom-red-200 text-2xl font-bold">{profileData.mealsGenerated}</p>
-              <span className="text-gray-500">Meals Generated</span>
-            </div>
+            {profileData.mealsAccepted + profileData.mealsRejected === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full">
+                <p className="text-custom-red-200 text-2xl font-bold">Start Swiping!</p>
+                <p className="text-gray-500 text-xl">0 Meals Generated</p>
+              </div>
+            ) : (
+              <>
+                <Doughnut data={donutData} options={donutOptions} />
+                <div className="text-center mt-2">
+                  <p className="text-custom-red-200 text-2xl font-bold">{profileData.mealsAccepted + profileData.mealsRejected}</p>
+                  <span className="text-gray-500">Meals Generated</span>
+                </div>
+              </>
+            )}
           </div>
           <div className="bg-white rounded-lg p-5 w-1/4 shadow-md">
             <div className="flex flex-col gap-5">
               <h4 className="font-bold text-center">Preferences</h4>
               <Select
-                options={availableDietaryOptions}
+                options={dietaryOptions.filter(option => !selectedDietaryRestrictions.includes(option.label))}
                 isMulti
                 placeholder="Dietary Restrictions"
                 styles={customStyles}
@@ -171,7 +202,7 @@ const Profile = () => {
                 onChange={(selectedOptions) => setSelectedDietaryRestrictions(selectedOptions.map(option => option.label))}
               />
               <Select
-                options={availableCuisineOptions}
+                options={cuisineOptions.filter(option => !selectedCuisines.includes(option.label))}
                 isMulti
                 placeholder="Preferred Cuisines"
                 styles={customStyles}
@@ -198,17 +229,21 @@ const Profile = () => {
               </div>
               <div className="flex items-center justify-start bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
                 <img src={favoriteIcon} alt="Favorites" className="w-8 h-8 mr-2" />
-                <p><strong className='text-custom-red-200'>{profileData.favoriteMeals}</strong> Favorite Meals</p>
+                <p><strong className='text-custom-red-200'>{profileData.mealsFavorited}</strong> Favorite Meals</p>
               </div>
             </div>
           </div>
         </div>
         <div className="w-full">
-          <h2 className="text-xl font-bold mb-3 text-center text-custom-red-300">Favorites</h2>
+          <h2 className="text-xl font-bold mb-3 text-center text-custom-red-300">Favorites:</h2>
           <div className="flex gap-5 overflow-x-auto whitespace-nowrap rounded-lg">
-            {meals.map((meal, index) => (
-              <MealCard key={index} meal={meal} isProfile={true} onAccept={handleAccept} onReject={handleReject} />
-            ))}
+            {favoriteMeals.length === 0 ? (
+              <p className="text-gray-500 mx-auto">No Favorites Yet!</p>
+            ) : (
+              favoriteMeals.map((meal, index) => (
+                <MealCard key={index} meal={meal} isProfile={true} onAccept={handleAccept} onReject={handleReject} />
+              ))
+            )}
           </div>
         </div>
       </div>

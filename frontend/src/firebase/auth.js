@@ -38,6 +38,9 @@ export const registerUserWithDetails = async (email, password, name) => {
       mealsAccepted: 0,
       mealsRejected: 0,
       ingredientsSaved: 0,
+      cuisines: [],
+      dietaryRestrictions: [],
+      receiptsUploaded: 0,
     });
   } catch (error) {
     console.error("Error registering user", error);

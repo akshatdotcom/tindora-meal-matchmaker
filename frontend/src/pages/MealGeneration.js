@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { db } from '../firebase/db';
+import { doc, updateDoc, increment, collection, addDoc } from 'firebase/firestore';
 import MealCard from './MealCard';
 import './MealGeneration.css';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const MealGeneration = ({ meals }) => {
   const [currentMealIndex, setCurrentMealIndex] = useState(0);
@@ -10,15 +13,27 @@ const MealGeneration = ({ meals }) => {
   const mealCardRef = useRef(null);
   const navigate = useNavigate();
 
-  const [mealsGenerated, setMealsGenerated] = useState(0);
   const [mealsAccepted, setMealsAccepted] = useState(0);
   const [mealsRejected, setMealsRejected] = useState(0);
   const [ingredientsSaved, setIngredientsSaved] = useState(0);
   const [mealsFavorited, setMealsFavorited] = useState(0);
 
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   useEffect(() => {
     resetPosition();
-    setMealsGenerated(meals.length);
   }, [meals]);
 
   const handleDragStart = (event) => {
@@ -79,56 +94,92 @@ const MealGeneration = ({ meals }) => {
     document.body.classList.remove('flash-green', 'flash-red');
   };
 
-  const handleMealAccept = (isFavorite) => {
+  const handleMealAccept = async (isFavorite) => {
+    console.log('Current User:', currentUser);
     const meal = meals[currentMealIndex];
+    console.log('Current Meal:', meal);
+  
+    if (!currentUser || !currentUser.uid) {
+      console.error("Current user is not valid");
+      return;
+    }
+  
+    if (!meal) {
+      console.error("Current meal is not valid", meal);
+      return;
+    }
+  
     const ingredientCount = Object.keys(meal.ingredients).length;
     setIngredientsSaved((prev) => prev + ingredientCount);
     setMealsAccepted((prev) => prev + 1);
-
-    // Add to favorites if the meal is favorited
-    if (isFavorite) {
-      // TODO: Add meal to favorites in the database
-      setMealsFavorited((prev) => prev + 1);
-      console.log('Meal favorited:', meal);
+  
+    const userRef = doc(db, 'users', currentUser.uid);
+    const currentMealsCollection = collection(userRef, 'currentMeals');
+    const favoriteMealsCollection = collection(userRef, 'favoriteMeals');
+  
+    try {
+      await addDoc(currentMealsCollection, meal);
+  
+      console.log('Meal accepted:', meal);
+  
+      if (isFavorite) {
+        await addDoc(favoriteMealsCollection, meal);
+        setMealsFavorited((prev) => prev + 1);
+        console.log('Meal favorited:', meal);
+      }
+  
+      setTimeout(() => {
+        moveToNextMeal();
+        resetPosition();
+      }, 500);
+    } catch (error) {
+      console.error('Error updating meal in Firestore:', error);
     }
-
-    // TODO: Send accepted meal to the database as meal object to be stored in current meals
-    console.log('Meal accepted:', meal);
-
-    setTimeout(() => {
-      moveToNextMeal();
-      resetPosition();
-    }, 500);
   };
-
-  const handleMealReject = (isFavorite) => {
+  
+  const handleMealReject = async (isFavorite) => {
     setMealsRejected((prev) => prev + 1);
-    // Add to favorites if the meal is favorited
-    if (isFavorite) {
-      // TODO: Add meal to favorites in the database
-      setMealsFavorited((prev) => prev + 1);
-      console.log('Meal favorited:', meal);
+  
+    const userRef = doc(db, 'users', currentUser.uid);
+    const favoriteMealsCollection = collection(userRef, 'favoriteMeals');
+  
+    try {
+      if (isFavorite) {
+        const favoriteMealRef = await addDoc(favoriteMealsCollection, meal);
+        setMealsFavorited((prev) => prev + 1);
+        console.log('Meal favorited:', meal);
+        console.log('Favorite Meal Document ID:', favoriteMealRef.id);
+      }
+  
+      console.log('Meal rejected:', meals[currentMealIndex]);
+  
+      setTimeout(() => {
+        moveToNextMeal();
+        resetPosition();
+      }, 500);
+    } catch (error) {
+      console.error('Error updating favorite meal in Firestore:', error);
     }
-    console.log('Meal rejected:', meals[currentMealIndex]);
-
-    setTimeout(() => {
-      moveToNextMeal();
-      resetPosition();
-    }, 500);
   };
 
-  const moveToNextMeal = () => {
+  const moveToNextMeal = async () => {
     if (currentMealIndex < meals.length - 1) {
       setCurrentMealIndex(currentMealIndex + 1);
     } else {
-      console.log('All meals processed. Updating database with counts.');
-      console.log("Meals Generated: ", mealsGenerated);
-      console.log("Meals Accepted: ", mealsAccepted);
-      console.log("Meals Rejected: ", mealsRejected);
-      console.log("Ingredients Saved: ", ingredientsSaved);
-      console.log("Meals Favorited: ", mealsFavorited);
-      // TODO: Update the database with the counts (mealsGenerated, mealsRejected, mealsAccepted, ingredientsSaved, mealsFavorited)
-      navigate('/home');
+      try {
+        const userRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userRef, {
+          mealsAccepted: increment(mealsAccepted),
+          mealsRejected: increment(mealsRejected),
+          ingredientsSaved: increment(ingredientsSaved),
+          mealsFavorited: increment(mealsFavorited),
+        });
+  
+        console.log('All meals processed and database updated.');
+        navigate('/home');
+      } catch (error) {
+        console.error('Error updating user stats in Firestore:', error);
+      }
     }
   };
 

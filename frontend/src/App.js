@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './index.js';
 import LandingPage from './pages/LandingPage.js';
-import MealCard from './pages/MealCard.js';
 import MealGeneration from './pages/MealGeneration';
 import Profile from './pages/Profile.js';
 import Login from './pages/Login.js';
@@ -26,6 +25,7 @@ const App = () => {
         'Salt': 'to taste',
         'Pepper': 'to taste',
       },
+      earliestExpirationDate: '2024-08-09',
     },
     {
       image: salad,
@@ -41,6 +41,7 @@ const App = () => {
         'Salt': 'to taste',
         'Pepper': 'to taste',
       },
+      earliestExpirationDate: '2024-08-10',
     },
     {
       image: salad,
@@ -56,6 +57,7 @@ const App = () => {
         'Salt': 'to taste',
         'Pepper': 'to taste',
       },
+      earliestExpirationDate: '2024-08-11',
     },
     {
       image: salad,
@@ -71,6 +73,7 @@ const App = () => {
         'Salt': 'to taste',
         'Pepper': 'to taste',
       },
+      earliestExpirationDate: '2024-08-12',
     },
     {
       image: salad,
@@ -86,6 +89,7 @@ const App = () => {
         'Salt': 'to taste',
         'Pepper': 'to taste',
       },
+      earliestExpirationDate: '2024-08-13',
     },
     {
       image: salad,
@@ -100,6 +104,7 @@ const App = () => {
         'Salt': 'to taste',
         'Pepper': 'to taste',
       },
+      earliestExpirationDate: '2024-08-14',
     },
     {
       image: salad,
@@ -113,6 +118,7 @@ const App = () => {
         'Salt': 'to taste',
         'Pepper': 'to taste',
       },
+      earliestExpirationDate: '2024-08-15',
     },
   ];
 

@@ -10,8 +10,21 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+  
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password) {
+      alert("Email and password cannot be empty.");
+      return;
+    }
+  
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(trimmedEmail)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+  
     try {
-      await login(email, password);
+      await login(trimmedEmail, password);
       navigate('/home');
     } catch (error) {
       console.error("Error logging in", error);
