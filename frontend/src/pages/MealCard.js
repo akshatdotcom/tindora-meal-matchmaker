@@ -43,9 +43,9 @@ const MealCard = ({ meal, isProfile, onAccept, onReject }) => {
         <div className="text-m text-center mt-1 text-gray-500">{meal.calories} cals | {meal.cookTime} mins</div>
         <div className="text-center mt-4">
           <ul className="columns-2 space-y-1 list-disc text-sm">
-            {Object.entries(meal.ingredients).map(([ingredient, quantity], index) => (
+            {Object.entries(meal.ingredients).map(([_, ingredient], index) => (
               <li key={index} className="break-words pr-2">
-                {ingredient}: {quantity}
+                {ingredient}
               </li>
             ))}
           </ul>

@@ -34,6 +34,8 @@ const GroceryList = () => {
     },
   ];
 
+  
+
   const combinedIngredients = favoriteMeals.reduce((acc, meal) => {
     meal.ingredients.forEach(ingredient => {
       const existingIngredient = acc.find(item => item.name === ingredient.name);

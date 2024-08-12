@@ -421,17 +421,25 @@ const LandingPage = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  <th className="p-3 border-b border-gray-300 bg-gray-200">MEAL NAME</th>
-                  <th className="p-3 border-b border-gray-300 bg-gray-200">INGREDIENTS</th>
-                  <th className="p-3 border-b border-gray-300 bg-gray-200">EARLIEST EXP DATE</th>
+                  <th className="p-3 border-b border-gray-300 bg-gray-200">
+                    MEAL NAME
+                  </th>
+                  <th className="p-3 border-b border-gray-300 bg-gray-200">
+                    INGREDIENTS
+                  </th>
+                  <th className="p-3 border-b border-gray-300 bg-gray-200">
+                    EARLIEST EXP DATE
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {sortedCurrentMeals.map((meal) => (
                   <tr key={meal.id}>
-                    <td className="p-3 border-b border-gray-300">{meal.name}</td>
                     <td className="p-3 border-b border-gray-300">
-                      {Object.keys(meal.ingredients).join(', ')} {/* Display keys as comma-separated list */}
+                      {meal.name}
+                    </td>
+                    <td className="p-3 border-b border-gray-300">
+                      {meal.ingredients.join(", ")}
                     </td>
                     <td
                       className={
