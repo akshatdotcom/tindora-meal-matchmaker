@@ -471,7 +471,7 @@ const LandingPage = () => {
               value={newIngredient.name}
               onChange={handleInputChange}
               placeholder="Ingredient Name"
-              className="w-full p-2 border border-gray-300 mb-2"
+              className="w-full p-2 border border-gray-300 mb-4"
             />
             <input
               type="text"
@@ -481,6 +481,7 @@ const LandingPage = () => {
               placeholder="Ingredient Quantity"
               className="w-full p-2 border border-gray-300 mb-2"
             />
+            <p>Buy Date:</p>
             <input
               type="date"
               name="buyDate"
@@ -488,6 +489,7 @@ const LandingPage = () => {
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 mb-2"
             />
+            <p>Expiration Date:</p>
             <input
               type="date"
               name="expirationDate"

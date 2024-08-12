@@ -18,6 +18,8 @@ import { auth } from "../firebase/auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useCallback } from "react";
+import { fetchMealImage } from "../firebase/pexelsAPI";
+import logo from '../assets/logo.png';
 
 const MealGeneration = () => {
   const [currentMealIndex, setCurrentMealIndex] = useState(0);
@@ -52,39 +54,63 @@ const MealGeneration = () => {
     resetPosition();
   }, [foods]);
 
-  const resetPosition = () => {
-    setPosition({ x: 0, y: 0 });
-    if (mealCardRef.current) {
-      mealCardRef.current.style.transform = `translate(0px, 0px)`;
-    }
-  };
-
-  const handleDragStart = (e) => {
+  const handleDragStart = (event) => {
     setIsDragging(true);
-    e.dataTransfer.setDragImage(new Image(), 0, 0);
+    setPosition({
+      x: event.clientX,
+      y: event.clientY,
+    });
+
   };
 
   const handleDragEnd = () => {
     setIsDragging(false);
-    const threshold = 100;
-    if (position.x > threshold) {
-      handleMealAccept(false);
-    } else if (position.x < -threshold) {
-      handleMealReject(false);
-    } else {
-      resetPosition();
+    resetPosition();
+  };
+
+  const handleDrag = (event) => {
+    if (isDragging && mealCardRef.current) {
+      const deltaX = event.clientX - position.x;
+      const deltaY = event.clientY - position.y;
+      
+      setPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      const mealCard = mealCardRef.current;
+      mealCard.style.left = `${mealCard.offsetLeft + deltaX}px`;
+      mealCard.style.top = `${mealCard.offsetTop + deltaY}px`;
+
+      // Check if the card touches the right edge
+      if (mealCard.offsetLeft + mealCard.offsetWidth >= window.innerWidth) {
+        document.body.classList.add('flash-green');
+        setTimeout(() => handleMealAccept(), 500);
+        return;
+      } else {
+        document.body.classList.remove('flash-green');
+      }
+
+      // Check if the card touches the left edge
+      if (mealCard.offsetLeft <= 0) {
+        document.body.classList.add('flash-red')
+        setTimeout(() => handleMealReject(), 500);
+        return;
+      } else {
+        document.body.classList.remove('flash-red');
+      }
     }
   };
 
-  const handleDrag = (e) => {
-    if (isDragging) {
-      const newX = e.clientX - window.innerWidth / 2;
-      const newY = e.clientY - window.innerHeight / 2;
-      setPosition({ x: newX, y: newY });
-      if (mealCardRef.current) {
-        mealCardRef.current.style.transform = `translate(${newX}px, ${newY}px)`;
-      }
+  const resetPosition = () => {
+    if (mealCardRef.current) {
+      const mealCard = mealCardRef.current;
+      const centerLeft = (window.innerWidth - mealCard.offsetWidth) / 2;
+      const centerTop = (window.innerHeight - mealCard.offsetHeight) / 2;
+      mealCard.style.left = `${centerLeft}px`;
+      mealCard.style.top = `${centerTop}px`;
     }
+    document.body.classList.remove('flash-green', 'flash-red');
   };
 
   const getCuisines = async () => {
@@ -110,13 +136,13 @@ const MealGeneration = () => {
   const fetchMeals = useCallback(async (retryCount = 3) => {
     console.log("Fetching meals...");
     setIsLoading(true);
-
+  
     try {
       const genAI = new GoogleGenerativeAI(
         "AIzaSyCQVb79NBO9crsndXAaV3dPvzSWrqDk0hg"
       );
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
+  
       const json_schema = `[
         {
           "name": "Example Meal Name 1",
@@ -126,11 +152,11 @@ const MealGeneration = () => {
           "cookTime": <number>
         }
       ]`;
-
+  
       const ingredientsJson = await getIngredients();
       const dietaryRestrictions = await getDietaryRestrictions();
       const cuisines = await getCuisines();
-
+  
       const prompt = `Using the JSON list of ingredients provided below, provide a meal plan 
       based on the name category. Make sure to consider the expiration date (labeled end) and prioritize 
       ingredients that expire earlier. Also consider the quantity of each food item. Once you've used an ingredient once, don't use it for another meal. 
@@ -140,7 +166,7 @@ const MealGeneration = () => {
       If you must add ingredients not in the list, include a 'not provided' in the string. Do not provide meals that only use ingredients that are not listed below. 
       Only return the response in the JSON schema format ${json_schema}.\nIngredients:\n${ingredientsJson}\nDietary Restrictions:\n${dietaryRestrictions}
       \nPreferred Cuisines: ${cuisines}`;
-
+  
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response
@@ -149,13 +175,21 @@ const MealGeneration = () => {
         .trim();
       console.log(text);
       const data = JSON.parse(text);
-
+  
       console.log("Generated meals:", data);
-
-      setFoods(data);
+  
+      // Fetch images for each generated meal
+      const mealsWithImages = await Promise.all(
+        data.map(async (meal) => {
+          const imageUrl = await fetchMealImage(meal.name);
+          return { ...meal, image: imageUrl || logo }; // Add a fallback image if necessary
+        })
+      );
+  
+      setFoods(mealsWithImages); // Set the state with meals that include images
       setCurrentMealIndex(0);
       setIsLoading(false);
-      toast(`Generated ${data.length} unique meals`, {
+      toast(`Generated ${mealsWithImages.length} unique meals`, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
