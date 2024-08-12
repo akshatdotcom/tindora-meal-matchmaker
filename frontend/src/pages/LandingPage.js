@@ -328,8 +328,8 @@ const LandingPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {sortedIngredients.map((ingredient) => (
-                  <tr key={ingredient.id}>
+                {sortedIngredients.map((ingredient, index) => (
+                  <tr key={index}>
                     <td className="p-3 border-b border-gray-300">
                       {ingredient.name}
                     </td>
@@ -433,8 +433,8 @@ const LandingPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {sortedCurrentMeals.map((meal) => (
-                  <tr key={meal.id}>
+                {sortedCurrentMeals.map((meal, index) => (
+                  <tr key={index}>
                     <td className="p-3 border-b border-gray-300">
                       {meal.name}
                     </td>
