@@ -24,3 +24,4 @@ export const saveUser = async (user) => {
     email: user.email,
   });
 };
+
