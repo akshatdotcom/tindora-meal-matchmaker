@@ -8,23 +8,22 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo from "../assets/logo.png";
 import { Clipboard } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const GroceryListGeneration = () => {
   const [groceryList, setGroceryList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUser(user);
-      } else {
-        setCurrentUser(null);
+      if (!user) {
+        navigate("/");
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const getFavoriteMeals = async () => {
     const uid = auth.currentUser.uid;

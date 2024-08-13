@@ -17,7 +17,6 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const LandingPage = () => {
   const navigate = useNavigate();
   const [receiptUploaded, setReceiptUploaded] = useState(false);
-  const [receiptFile, setReceiptFile] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const [ingredients, setIngredients] = useState([]);
   const [currentMeals, setCurrentMeals] = useState([]);
@@ -92,7 +91,6 @@ const LandingPage = () => {
       (file.type === "image/jpeg" || file.type === "image/png") &&
       file.size <= 50 * 1024 * 1024
     ) {
-      setReceiptFile(file);
       setReceiptUploaded(true);
       setInputValue("");
       console.log("Receipt uploaded:", file.name);
@@ -181,7 +179,6 @@ const LandingPage = () => {
 
       console.log("Receipt processed successfully:", jsonText);
       setReceiptUploaded(false);
-      setReceiptFile(null);
       setInputValue("");
 
       // Save the new ingredients to the database
