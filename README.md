@@ -189,17 +189,6 @@ Rewrites route all paths to `index.html` for SPA routing.
 - Add i18n and accessibility enhancements.
 - Offline support and caching for meal cards.
 
-### Contributing
-
-Pull requests welcome! For significant changes, please open an issue first to discuss what you would like to change.
-
-Suggested workflow:
-
-1. Fork the repo and create a feature branch.
-2. Make your changes in `frontend/` and update README if needed.
-3. Run `npm start` locally and ensure no console errors.
-4. Submit a PR with clear description and screenshots if UI changes.
-
 ### Credits & Acknowledgements
 
 - Built for MLH FormulaHacks — won Best Use of MongoDB Atlas and Best Pitch.
